@@ -1,5 +1,6 @@
-FROM golang:latest as builder
+FROM golang:alpine as builder
 
+RUN apk update && apk add --no-cache ca-certificates && update-ca-certificates
 WORKDIR /go/src
 
 COPY go.mod ./
@@ -18,6 +19,8 @@ EXPOSE 3000
 
 FROM scratch as runner
 
+FROM scratch
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=builder /go/bin/main /app/main
 
 ENTRYPOINT ["/app/main"]
